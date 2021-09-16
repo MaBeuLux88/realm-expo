@@ -2,9 +2,12 @@ import {StatusBar} from 'expo-status-bar';
 import React, {useState} from 'react';
 import {Button, ScrollView, StyleSheet, Text, TextInput, View} from 'react-native';
 import {ObjectId} from 'bson';
+import {getRealmApp} from "./getRealmApp";
 
 export default function App() {
     const [todos, setTodos] = useState([]);
+    const app = getRealmApp();
+    console.log("=====>", app);
 
     const addTodo = (task) => {
         let arrayTodos = todos.slice();
