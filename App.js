@@ -1,45 +1,14 @@
 import {StatusBar} from 'expo-status-bar';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Button, ScrollView, StyleSheet, Text, TextInput, View} from 'react-native';
 import 'react-native-get-random-values';
 import {realmApp} from "./RealmApp";
 import Realm from 'realm';
 import {anonymousLogin} from "./Auth";
-import {RealmProvider} from './Todo';
+import { Todo, RealmProvider, useRealm, useQuery } from './Todo';
 
 export default function AppWrapper() {
-    if (!RealmProvider) {
-        return null;
-    }
-    return (
-        <RealmProvider>
-            <App/>
-        </RealmProvider>
-    );
-};
-
-
-function App() {
-    // const app = realmApp();
-    // const user = anonymousLogin();
-    // const todoRealm = openTodoRealm();
-    const todoRealm = "Hello...";
-    const [todos, setTodos] = useState([]);
     const [user, setUser] = useState(null);
-
-    const addTodo = (task) => {
-        let arrayTodos = todos.slice();
-        arrayTodos.push({_id: new Realm.BSON.ObjectId(), todo: task, user: "Max"});
-        setTodos(arrayTodos);
-        console.log("USER ", user, user.id, user.type, user.identities);
-        console.log("TODO REALM ", todoRealm);
-    }
-
-    const deleteTodo = (id) => {
-        let arrayTodos = todos.slice();
-        arrayTodos = arrayTodos.filter(t => t._id !== id);
-        setTodos(arrayTodos);
-    }
 
     useEffect(() => {
         const authenticate = async () => {
@@ -48,6 +17,32 @@ function App() {
         console.log("=> AUTH UseEffect! ONE TIME.")
         authenticate();
     }, [])
+    if (!RealmProvider || !user) {
+        return null;
+    }
+    return (
+        <RealmProvider config={{schema:[Todo.schema], sync:{user, partitionValue:"Max"}}}>  
+            <App/>
+        </RealmProvider>
+    );
+};
+
+
+function App() {
+    const realm = useRealm()
+    const {data: todos} = useQuery('Todo')
+
+    const addTodo = (task) => {
+        realm.write(() => {
+            realm.create("Todo", {_id: new Realm.BSON.ObjectId(), text: task, _partition: "Max"})
+        })
+    }
+
+    const deleteTodo = (id) => {
+        realm.write(() => {
+            realm.delete(realm.objectForPrimaryKey("Todo", id))
+        })
+    }
 
     return (
         <View style={styles.container}>
@@ -58,13 +53,17 @@ function App() {
     );
 }
 
-const Todos = (props) => {
+const Todos = ({todos, deleteTodo}) => {
+    if(!todos || todos.length == 0){
+        return null
+    }
+    console.log("todos", JSON.stringify(todos[0]))
     return (
         <ScrollView style={styles.todos}>
-            {props.todos.map(t => {
+            {todos.map(t => {
                 return <View key={t._id} style={styles.todo}>
-                    <Text style={styles.text}>{t.todo}</Text>
-                    <Button title="X" color="red" onPress={() => props.deleteTodo(t._id)}/>
+                    <Text style={styles.text}>{t.text}</Text>
+                    <Button title="X" color="red" onPress={() => deleteTodo(t._id)}/>
                 </View>
             })}
         </ScrollView>

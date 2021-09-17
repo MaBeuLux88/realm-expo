@@ -1,9 +1,7 @@
 import Realm from 'realm';
 import {createRealmContext} from '@realm.io/react';
-import {realmApp} from "./RealmApp";
-import {anonymousLogin} from "./Auth";
 
-class Todo {
+export class Todo {
     static schema = {
         name: 'Todo',
         properties: {
