@@ -70,9 +70,9 @@ at node_modules/@react-native/polyfills/error-guard.js:49:36 in ErrorUtils.repor
 
 And a screenshot from what I get on my mobile after scanning the QR code with Expo Go:
 
-![Error 1](/home/polux/Work/realm-expo/images_readme/error1.jpeg)
+![Error 1](./images_readme/error1.jpeg)
 
-![Error 2](/home/polux/Work/realm-expo/images_readme/error2.jpeg)
+![Error 2](./images_readme/error2.jpeg)
 
 # Author
 
